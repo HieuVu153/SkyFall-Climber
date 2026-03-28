@@ -5,33 +5,55 @@ public sealed class SettingManager : MonoBehaviour
 {
     [Header("UI References")]
     [SerializeField] private GameObject settingPanel;
-    [SerializeField] private Slider volumeSlider;
+    [SerializeField] private Slider musicSlider;
+    [SerializeField] private Slider soundSlider;
+
+    [Header("Audio Sources")]
+    [SerializeField] private AudioSource musicSource; // Nhạc nền
+    [SerializeField] private AudioSource sfxSource;   // Âm thanh game
 
     private void Start()
     {
-        // Mặc định âm lượng là Max khi bắt đầu
-        if (volumeSlider != null)
+        // Setup slider Music
+        if (musicSlider != null)
         {
-            volumeSlider.value = volumeSlider.maxValue;
-            volumeSlider.onValueChanged.AddListener(SetVolume);
+            musicSlider.value = 1f;
+            musicSlider.onValueChanged.AddListener(SetMusicVolume);
+        }
+
+        // Setup slider Sound
+        if (soundSlider != null)
+        {
+            soundSlider.value = 1f;
+            soundSlider.onValueChanged.AddListener(SetSoundVolume);
         }
     }
 
-    // Hàm chỉnh âm lượng
-    public void SetVolume(float value)
+    // 🎵 Điều chỉnh nhạc nền
+    public void SetMusicVolume(float value)
     {
-        // value sẽ chạy từ 0 đến 1 (hoặc MaxValue của Slider)
-        AudioListener.volume = value;
-        Debug.Log("Âm lượng hiện tại: " + value);
+        if (musicSource != null)
+        {
+            musicSource.volume = value;
+        }
     }
 
-    // Hàm mở Setting
+    // 🔊 Điều chỉnh âm thanh game
+    public void SetSoundVolume(float value)
+    {
+        if (sfxSource != null)
+        {
+            sfxSource.volume = value;
+        }
+    }
+
+    // Mở Setting
     public void OpenSetting()
     {
         settingPanel.SetActive(true);
     }
 
-    // Hàm thoát Setting (Đóng Panel)
+    // Đóng Setting
     public void CloseSetting()
     {
         settingPanel.SetActive(false);
