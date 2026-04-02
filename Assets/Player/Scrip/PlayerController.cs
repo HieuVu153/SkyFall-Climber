@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -15,9 +16,14 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody2D rb;
     private Animator anim;
+    public float knockbackForce = 10f;
+    Vector2 dirForce = Vector2.zero;
+    bool addForce;
+
 
     private float moveInput;
     private int facingDirection = 1; // 1 = phải, -1 = trái
+
 
     void Start()
     {
@@ -32,6 +38,8 @@ public class PlayerController : MonoBehaviour
 
         // cập nhật animation speed (Idle/Run)
         anim.SetFloat("speed", Mathf.Abs(rb.linearVelocity.x));
+
+        if (addForce) transform.Translate(dirForce * 20f * Time.deltaTime);
     }
 
     void Move()
@@ -111,5 +119,18 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
             anim.SetBool("isJumping", false);
         }
+    }
+    public void Knockback(Vector2 direction)
+    {
+        //rb.linearVelocity = Vector2.zero; // reset lực cũ
+        //rb.AddForce(direction * knockbackForce, ForceMode2D.Impulse);
+    }
+
+    public IEnumerator DelayKnock(Vector2 direction)
+    {
+        dirForce = direction;
+        addForce = true;
+        yield return new WaitForSeconds(.4f);
+        addForce = false;
     }
 }
