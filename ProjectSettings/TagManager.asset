@@ -3,12 +3,22 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
+<<<<<<< HEAD
   tags: []
+=======
+  tags:
+  - Ground
+  - Trap
+>>>>>>> main
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
+<<<<<<< HEAD
   - 
+=======
+  - Player
+>>>>>>> main
   - Water
   - UI
   - 
