@@ -1,12 +1,12 @@
 {
   "dependencies": {
-<<<<<<< HEAD
+
 
     "com.unity.multiplayer.center": "1.0.0",
 
-=======
+
     "com.unity.cinemachine": "3.1.6",
->>>>>>> main
+
     "com.unity.collab-proxy": "2.11.4",
     "com.unity.feature.2d": "2.0.1",
     "com.unity.ide.rider": "3.0.39",
