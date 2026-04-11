@@ -1,5 +1,7 @@
 {
   "dependencies": {
+
+
     "com.unity.2d.animation": {
       "version": "10.2.2",
       "depth": 1,
@@ -187,6 +189,7 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+
     "com.unity.multiplayer.center": {
       "version": "1.0.0",
       "depth": 0,
@@ -195,6 +198,8 @@
         "com.unity.modules.uielements": "1.0.0"
       }
     },
+
+
     "com.unity.nuget.mono-cecil": {
       "version": "1.11.5",
       "depth": 3,
@@ -330,6 +335,7 @@
       },
       "url": "https://packages.unity.com"
     },
+
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
       "depth": 0,
