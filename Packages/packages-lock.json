@@ -1,5 +1,6 @@
 {
   "dependencies": {
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 =======
 
@@ -193,6 +194,8 @@
     },
 
 >>>>>>> Manh
+=======
+>>>>>>> Stashed changes
     "com.unity.multiplayer.center": {
       "version": "1.0.0",
       "depth": 0,
@@ -201,6 +204,7 @@
         "com.unity.modules.uielements": "1.0.0"
       }
     },
+<<<<<<< Updated upstream
 <<<<<<< HEAD
 =======
 
@@ -342,6 +346,8 @@
     },
 
 >>>>>>> Manh
+=======
+>>>>>>> Stashed changes
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
       "depth": 0,
