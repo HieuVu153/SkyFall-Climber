@@ -8,15 +8,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Player.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
-  - enabled: 1
-    path: Assets/Scenes/HomeMenu.unity
-    guid: e4781be6b2d343745ad442479fb1c9c4
-  - enabled: 1
-    path: Assets/Scenes/PauseMenu.unity
-    guid: ef4de10e997c03844b11cd10ee5ace55
-  - enabled: 1
-    path: Assets/Scenes/SceneDemoPlay.unity
-    guid: 7a509c024acd5f547b76e8221ce00000
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
