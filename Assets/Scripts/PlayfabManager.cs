@@ -1,3 +1,4 @@
+using UnityEngine.SceneManagement;
 using PlayFab;
 using PlayFab.ClientModels;
 using System.Collections;
@@ -12,9 +13,13 @@ public class PlayfabManager : MonoBehaviour
     public TextMeshProUGUI messageText;
     public TMP_InputField emailInput;
     public TMP_InputField passwordInput;
+    public ChangeInput changeInput;
 
+    // ===== REGISTER =====
     public void RegisterButton()
     {
+        Debug.Log("CLICK REGISTER");
+
         var request = new RegisterPlayFabUserRequest
         {
             Email = emailInput.text,
@@ -27,8 +32,15 @@ public class PlayfabManager : MonoBehaviour
 
     void OnRegisterSuccess(RegisterPlayFabUserResult result)
     {
-        messageText.text = "Đăng ký và đăng nhập thành công!";
+        messageText.text = "Đăng ký thành công! Hãy đăng nhập lại.";
+
+        emailInput.text = "";
+        passwordInput.text = "";
+
+        changeInput.ResetInput(); // 👈 gọi ở đây
     }
+
+    // ===== LOGIN =====
     public void LoginButton()
     {
         var request = new LoginWithEmailAddressRequest
@@ -36,40 +48,40 @@ public class PlayfabManager : MonoBehaviour
             Email = emailInput.text,
             Password = passwordInput.text
         };
+
         PlayFabClientAPI.LoginWithEmailAddress(request, OnLoginSuccess, OnError);
-    }
-
-    void Start()
-    {
-        Login();
-    }
-
-    void Login()
-    {
-        var request = new LoginWithCustomIDRequest
-        {
-            CustomId = SystemInfo.deviceUniqueIdentifier,
-            CreateAccount = true
-        };
-
-        PlayFabClientAPI.LoginWithCustomID(request, OnSuccess, OnError);
     }
 
     void OnLoginSuccess(LoginResult result)
     {
-        messageText.text = "Logged in!";
-        Debug.Log("Successful login/account create!");
+        messageText.text = "Đăng nhập thành công!";
+        Debug.Log("Login OK");
+
+        // chuyển scene sau khi login
+        SceneManager.LoadScene("Map"); // tên scene của bạn
     }
 
-    void OnSuccess(LoginResult result)
+    // ===== RESET PASSWORD =====
+    public void ResetPasswordButton()
     {
-        Debug.Log("Đăng nhập / tạo tài khoản thành công!");
+        var request = new SendAccountRecoveryEmailRequest
+        {
+            Email = emailInput.text,
+            TitleId = PlayFabSettings.TitleId // dùng TitleId hiện tại
+        };
+
+        PlayFabClientAPI.SendAccountRecoveryEmail(request, OnPasswordReset, OnError);
     }
 
+    void OnPasswordReset(SendAccountRecoveryEmailResult result)
+    {
+        messageText.text = "Đã gửi email reset mật khẩu!";
+    }
+
+    // ===== ERROR =====
     void OnError(PlayFabError error)
     {
         messageText.text = error.ErrorMessage;
         Debug.Log(error.GenerateErrorReport());
     }
-
 }

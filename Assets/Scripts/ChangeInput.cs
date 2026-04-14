@@ -7,39 +7,67 @@ public class ChangeInput : MonoBehaviour
 {
 
     EventSystem system;
-    public Selectable firstInput;
-    public Button submitButton;
 
-    // Use this for initialization
+    public Selectable firstInput;   // ô email
+    public Button submitButton;     // nút login
+
     void Start()
     {
         system = EventSystem.current;
-        firstInput.Select();
+
+        // focus ô đầu tiên khi mở game
+        if (firstInput != null)
+        {
+            firstInput.Select();
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
+        if (system.currentSelectedGameObject == null) return;
+
+        Selectable current = system.currentSelectedGameObject.GetComponent<Selectable>();
+        if (current == null) return;
+
+        // SHIFT + TAB → đi lên
         if (Input.GetKeyDown(KeyCode.Tab) && Input.GetKey(KeyCode.LeftShift))
         {
-            Selectable previous = system.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnUp();
+            Selectable previous = current.FindSelectableOnUp();
             if (previous != null)
             {
                 previous.Select();
             }
         }
+        // TAB → đi xuống
         else if (Input.GetKeyDown(KeyCode.Tab))
         {
-            Selectable next = system.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnDown();
+            Selectable next = current.FindSelectableOnDown();
             if (next != null)
             {
                 next.Select();
             }
         }
+        // ENTER → bấm nút Login
         else if (Input.GetKeyDown(KeyCode.Return))
         {
-            submitButton.onClick.Invoke();
-            Debug.Log("Button pressed!");
+            if (submitButton != null)
+            {
+                submitButton.onClick.Invoke();
+                Debug.Log("Login button pressed!");
+            }
+        }
+    }
+
+    // 👉 GỌI SAU KHI REGISTER
+    public void ResetInput()
+    {
+        // clear selection cũ
+        system.SetSelectedGameObject(null);
+
+        // focus lại ô đầu tiên
+        if (firstInput != null)
+        {
+            firstInput.Select();
         }
     }
 }
