@@ -58,7 +58,7 @@ public class ChangeInput : MonoBehaviour
         }
     }
 
-    // 👉 GỌI SAU KHI REGISTER
+    //  GỌI SAU KHI REGISTER
     public void ResetInput()
     {
         // clear selection cũ
