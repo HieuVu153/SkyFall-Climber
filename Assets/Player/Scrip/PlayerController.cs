@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     public float knockbackForce = 10f;
     Vector2 dirForce = Vector2.zero;
     bool addForce;
-    
+
     public int score = 0;
 
 
@@ -143,5 +143,5 @@ public class PlayerController : MonoBehaviour
             Destroy(collision.gameObject);
         }
     }
-    
+
 }
