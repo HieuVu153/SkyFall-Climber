@@ -15,9 +15,15 @@ public class PlayfabManager : MonoBehaviour
     public TMP_InputField passwordInput;
     public ChangeInput changeInput;
 
+    [Header("Sound")]
+    public AudioSource audioSource;
+    public AudioClip clickSound;
+
     // ===== REGISTER =====
     public void RegisterButton()
     {
+        PlayClickSound(); 
+
         Debug.Log("CLICK REGISTER");
 
         var request = new RegisterPlayFabUserRequest
@@ -37,12 +43,14 @@ public class PlayfabManager : MonoBehaviour
         emailInput.text = "";
         passwordInput.text = "";
 
-        changeInput.ResetInput(); // 👈 gọi ở đây
+        changeInput.ResetInput(); //  gọi ở đây
     }
 
     // ===== LOGIN =====
     public void LoginButton()
     {
+        PlayClickSound(); 
+
         var request = new LoginWithEmailAddressRequest
         {
             Email = emailInput.text,
@@ -64,6 +72,8 @@ public class PlayfabManager : MonoBehaviour
     // ===== RESET PASSWORD =====
     public void ResetPasswordButton()
     {
+        PlayClickSound(); 
+
         var request = new SendAccountRecoveryEmailRequest
         {
             Email = emailInput.text,
@@ -83,5 +93,12 @@ public class PlayfabManager : MonoBehaviour
     {
         messageText.text = error.ErrorMessage;
         Debug.Log(error.GenerateErrorReport());
+    }
+    void PlayClickSound()
+    {
+        if (audioSource != null && clickSound != null)
+        {
+            audioSource.PlayOneShot(clickSound);
+        }
     }
 }
