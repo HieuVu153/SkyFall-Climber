@@ -5,13 +5,22 @@ public class MainMenuManager : MonoBehaviour
 {
     public GameObject settingsMenu; // Kéo Panel Settings vào đây
 
+    // Hàm cho nút "Chơi Tiếp"
+    public void ContinueGame() {
+        // Lấy level đã lưu, nếu chưa có thì mặc định là level 1
+        int savedLevel = PlayerPrefs.GetInt("SavedLevel", 1);
+        SceneManager.LoadScene(savedLevel);
+    }
+
+    // Hàm cho nút "Chơi Mới"
     public void PlayGame() {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        // Chơi mới thường là load Scene đầu tiên sau MainMenu (Index 1)
+        SceneManager.LoadScene(1);
     }
 
     public void OpenSettings() {
         settingsMenu.SetActive(true);
-        this.gameObject.SetActive(false); // Ẩn Menu chính
+        gameObject.SetActive(false); // Ẩn Menu chính
     }
 
     public void ExitGame() {
