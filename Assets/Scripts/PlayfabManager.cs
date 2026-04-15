@@ -66,7 +66,7 @@ public class PlayfabManager : MonoBehaviour
         Debug.Log("Login OK");
 
         // chuyển scene sau khi login
-        SceneManager.LoadScene("Map"); // tên scene của bạn
+        SceneManager.LoadScene("MainMenu"); // tên scene của bạn
     }
 
     // ===== RESET PASSWORD =====
