@@ -6,7 +6,7 @@ public class CoinCollector : MonoBehaviour
 
     void Start()
     {
-        coinManager = FindObjectOfType<CoinManager>();
+        coinManager = FindFirstObjectByType<CoinManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)

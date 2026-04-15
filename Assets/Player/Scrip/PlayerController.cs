@@ -135,6 +135,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(.4f);
         addForce = false;
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Coin"))
