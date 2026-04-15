@@ -20,8 +20,9 @@ public class PlayerController : MonoBehaviour
     Vector2 dirForce = Vector2.zero;
     bool addForce;
 
-    public int score = 0;
-
+    public int coin = 0;
+    private GameController gameController;
+    private Coroutine saveCoroutine;
 
     private float moveInput;
     private int facingDirection = 1; // 1 = phải, -1 = trái
@@ -31,6 +32,8 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        // Tìm GameController trong scene
+        gameController = Object.FindFirstObjectByType<GameController>();
     }
 
     void Update()
@@ -120,6 +123,12 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
             anim.SetBool("isJumping", false);
+
+            // Mỗi khi chạm đất an toàn, gọi AutoSave
+            if (gameController != null)
+            {
+                gameController.AutoSavePosition();
+            }
         }
     }
     public void Knockback(Vector2 direction)

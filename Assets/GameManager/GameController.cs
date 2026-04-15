@@ -8,33 +8,77 @@ public class GameController : MonoBehaviour
 {
     public TimeManager timeManager;
     public CoinManager coinManager;
+    public GameObject player; // Kéo thả Player vào đây trong Inspector
+    private Coroutine saveCoroutine;
 
     IEnumerator Start()
     {
         yield return new WaitForSeconds(0.5f); // đợi PlayFab ổn định
-
         InitGame();
     }
 
     void InitGame()
     {
-        // Load coin từ PlayFab
-        coinManager.LoadCoin();
+        if (DataPersistence.IsContinuing && DataPersistence.TargetPosition != null)
+        {
+            Rigidbody2D rb = player.GetComponent<Rigidbody2D>();
+            Vector3 savedPos = DataPersistence.TargetPosition.Value;
+            savedPos.z = 0.48f; // Giữ Z chuẩn của bạn
 
-        // Reset time
-        timeManager.ResetTime();
+            if (rb != null)
+            {
+                rb.simulated = false;      // Tắt vật lý tạm thời
+                rb.linearVelocity = Vector2.zero; // Xóa vận tốc cũ
+                rb.position = savedPos;    // Gán trực tiếp vào Rigidbody
+                player.transform.position = savedPos; // Gán vào Transform
+            }
 
-        // Bắt đầu đếm thời gian
-        timeManager.isPlaying = true;
+            // Ép Unity cập nhật hệ thống ngay lập tức
+            Physics2D.SyncTransforms();
+
+            if (rb != null) rb.simulated = true; // Bật lại vật lý
+
+            coinManager.coin = DataPersistence.TargetCoins;
+            DataPersistence.IsContinuing = false;
+
+            Debug.Log("ĐÃ ÉP VỊ TRÍ THÀNH CÔNG");
+        }
+    }
+    public void AutoSavePosition()
+    {
+        if (saveCoroutine != null) StopCoroutine(saveCoroutine);
+        saveCoroutine = StartCoroutine(SaveAfterDelay());
+    }
+
+    IEnumerator SaveAfterDelay()
+    {
+        // Đợi 1 giây để chắc chắn người chơi không nhảy tiếp ngay lập tức
+        // hoặc không bị trượt ngã khỏi nền (đúng chất Jump King)
+        yield return new WaitForSeconds(1.0f);
+
+        var request = new UpdateUserDataRequest
+        {
+            Data = new Dictionary<string, string>
+        {
+            { "Coin", coinManager.coin.ToString() },
+            { "PosX", player.transform.position.x.ToString() },
+            { "PosY", player.transform.position.y.ToString() },
+            { "PosZ", player.transform.position.z.ToString() }
+        }
+        };
+
+        PlayFabClientAPI.UpdateUserData(request,
+            result => Debug.Log("AutoSave Cloud OK!"),
+            error => Debug.LogWarning("AutoSave lỗi: " + error.GenerateErrorReport())
+        );
     }
 
     public void WinGame()
     {
         timeManager.isPlaying = false;
-
         int finalTime = timeManager.GetTime();
 
-        // Lưu coin
+        // Lưu coin cuối cùng
         coinManager.SaveCoin();
 
         // Gửi leaderboard
