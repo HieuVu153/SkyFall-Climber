@@ -6,10 +6,27 @@ using System.Collections.Generic;
 public class CoinManager : MonoBehaviour
 {
     public int coin;
+    public bool isLoaded = false; // 🔥 kiểm tra đã load xong chưa
+
+    // 👉 GỌI HÀM NÀY SAU KHI LOGIN THÀNH CÔNG
+    public void InitAfterLogin()
+    {
+        LoadCoin();
+    }
 
     public void AddCoin(int amount)
     {
+        if (!isLoaded)
+        {
+            Debug.LogWarning("Chưa load coin xong!");
+            return;
+        }
+
         coin += amount;
+
+        Debug.Log("Coin hiện tại: " + coin);
+
+        SaveCoin();
     }
 
     public void SaveCoin()
@@ -23,14 +40,15 @@ public class CoinManager : MonoBehaviour
         var request = new UpdateUserDataRequest
         {
             Data = new Dictionary<string, string>
-        {
-            {"Coin", coin.ToString()}
-        }
+            {
+                { "Coin", coin.ToString() }
+            }
         };
 
         PlayFabClientAPI.UpdateUserData(request,
             result => Debug.Log("Save Coin OK"),
-            error => Debug.LogError(error.GenerateErrorReport()));
+            error => Debug.LogError("Save lỗi: " + error.GenerateErrorReport())
+        );
     }
 
     public void LoadCoin()
@@ -46,15 +64,18 @@ public class CoinManager : MonoBehaviour
             {
                 if (result.Data != null && result.Data.ContainsKey("Coin"))
                 {
-                    coin = int.Parse(result.Data["Coin"].Value);
+                    int.TryParse(result.Data["Coin"].Value, out coin);
                 }
                 else
                 {
                     coin = 0;
                 }
 
-                Debug.Log("Coin: " + coin);
+                isLoaded = true; // 🔥 QUAN TRỌNG
+
+                Debug.Log("Load coin: " + coin);
             },
-            error => Debug.LogError(error.GenerateErrorReport()));
+            error => Debug.LogError("Load lỗi: " + error.GenerateErrorReport())
+        );
     }
 }
