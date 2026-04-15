@@ -14,12 +14,18 @@ public class CoinManager : MonoBehaviour
 
     public void SaveCoin()
     {
+        if (!PlayFabClientAPI.IsClientLoggedIn())
+        {
+            Debug.LogError("Chưa login mà gọi SaveCoin!");
+            return;
+        }
+
         var request = new UpdateUserDataRequest
         {
             Data = new Dictionary<string, string>
-            {
-                {"Coin", coin.ToString()}
-            }
+        {
+            {"Coin", coin.ToString()}
+        }
         };
 
         PlayFabClientAPI.UpdateUserData(request,
@@ -29,6 +35,12 @@ public class CoinManager : MonoBehaviour
 
     public void LoadCoin()
     {
+        if (!PlayFabClientAPI.IsClientLoggedIn())
+        {
+            Debug.LogError("Chưa login mà gọi LoadCoin!");
+            return;
+        }
+
         PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
             result =>
             {

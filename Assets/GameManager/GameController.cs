@@ -1,15 +1,18 @@
-using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
     public TimeManager timeManager;
     public CoinManager coinManager;
 
-    void Start()
+    IEnumerator Start()
     {
+        yield return new WaitForSeconds(0.5f); // đợi PlayFab ổn định
+
         InitGame();
     }
 
