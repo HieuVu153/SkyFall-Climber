@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 5
-  jumpForce: 13
+  jumpForce: 14
   maxChargeTime: 1
   knockbackForce: 300
   score: 0
