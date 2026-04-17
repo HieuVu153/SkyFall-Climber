@@ -125,6 +125,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: 1
+  coinID: 1
 --- !u!58 &8818595518002957800
 CircleCollider2D:
   m_ObjectHideFlags: 0
