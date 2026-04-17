@@ -1,4 +1,7 @@
+using PlayFab;
+using PlayFab.ClientModels;
 using System.Collections;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -32,10 +35,19 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        // Tìm GameController trong scene
         gameController = Object.FindFirstObjectByType<GameController>();
-    }
 
+        // Load từ DataPersistence (đã lấy từ menu)
+        if (DataPersistence.IsContinuing && DataPersistence.TargetPosition != null)
+        {
+            transform.position = DataPersistence.TargetPosition.Value;
+            Debug.Log("Apply vị trí đã lưu: " + transform.position);
+        }
+        else
+        {
+            Debug.Log("Chơi mới - dùng vị trí mặc định");
+        }
+    }
     void Update()
     {
         Move();

@@ -3,71 +3,145 @@ using UnityEngine.SceneManagement;
 using PlayFab;
 using PlayFab.ClientModels;
 using System.Collections.Generic;
+using System.Globalization;
 
 public class MainMenuManager : MonoBehaviour
 {
     public GameObject settingsMenu;
 
-    // CHƠI MỚI (Reset toàn bộ)
+    // ================== CHƠI MỚI ==================
     public void NewGame()
     {
-        DataPersistence.IsContinuing = false; // Đánh dấu là chơi mới
+        DataPersistence.IsContinuing = false;
         DataPersistence.TargetPosition = null;
 
-        // Reset dữ liệu trên PlayFab về mặc định
+        var data = new Dictionary<string, string>();
+
+        // Lưu vị trí spawn chuẩn (KHÔNG hardcode sai)
+        Vector3 spawn = new Vector3(0f, 1f, 0.48f);
+
+        data["PosX"] = spawn.x.ToString(CultureInfo.InvariantCulture);
+        data["PosY"] = spawn.y.ToString(CultureInfo.InvariantCulture);
+        data["PosZ"] = spawn.z.ToString(CultureInfo.InvariantCulture);
+        data["Coin"] = "0";
+
         var request = new UpdateUserDataRequest
         {
-            Data = new Dictionary<string, string>
-            {
-                { "Coin", "0" },
-                { "PosX", "0" },
-                { "PosY", "1" },
-                { "PosZ", "0.48" } // Giữ Z mặc định của bạn
-            }
+            Data = data
         };
 
         PlayFabClientAPI.UpdateUserData(request,
-            result => {
-                PlayerPrefs.DeleteAll();
+            result =>
+            {
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
             },
-            error => Debug.LogError(error.GenerateErrorReport())
+            error =>
+            {
+                Debug.LogError(error.GenerateErrorReport());
+                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+            }
         );
     }
 
-    // CHƠI TIẾP (Tải dữ liệu trước khi vào game)
+    // ================== CHƠI TIẾP ==================
     public void PlayGame()
     {
-        // 1. Gọi PlayFab lấy dữ liệu
-        PlayFabClientAPI.GetUserData(new GetUserDataRequest(), result =>
+        PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
+        result =>
         {
-            if (result.Data != null && result.Data.ContainsKey("PosX"))
+            float x, y, z;
+            int coins;
+
+            bool ok =
+                TryGetFloat(result, "PosX", out x) &&
+                TryGetFloat(result, "PosY", out y) &&
+                TryGetFloat(result, "PosZ", out z) &&
+                TryGetInt(result, "Coin", out coins);
+
+            if (ok)
             {
-                // 2. Lưu vào lớp trung gian
-                float x = float.Parse(result.Data["PosX"].Value);
-                float y = float.Parse(result.Data["PosY"].Value);
-                float z = float.Parse(result.Data["PosZ"].Value);
-                int coins = int.Parse(result.Data["Coin"].Value);
+                Debug.Log($"Load Pos: {x}, {y}, {z}");
 
                 DataPersistence.TargetPosition = new Vector3(x, y, z);
                 DataPersistence.TargetCoins = coins;
                 DataPersistence.IsContinuing = true;
-
-                // 3. Chuyển scene sau khi đã có dữ liệu
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
             }
             else
             {
-                // Nếu chưa có dữ liệu bao giờ thì cho chơi mới luôn
-                NewGame();
+                Debug.LogError("Data PlayFab lỗi → không thể Continue");
+
+                DataPersistence.IsContinuing = false;
+                DataPersistence.TargetPosition = null;
             }
-        }, error => {
+
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+
+        },
+        error =>
+        {
             Debug.LogError("Lỗi tải dữ liệu: " + error.GenerateErrorReport());
-            // Nếu lỗi mạng, có thể vẫn cho vào game nhưng ở vị trí mặc định
+
+            DataPersistence.IsContinuing = false;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         });
     }
 
+    // ================== TRY GET (KHÔNG DEFAULT) ==================
+    bool TryGetFloat(GetUserDataResult result, string key, out float value)
+    {
+        value = 0f;
+
+        if (result.Data == null || !result.Data.ContainsKey(key))
+        {
+            Debug.LogError($"Thiếu key: {key}");
+            return false;
+        }
+
+        string raw = result.Data[key].Value;
+
+        if (string.IsNullOrEmpty(raw))
+        {
+            Debug.LogError($"Key rỗng: {key}");
+            return false;
+        }
+
+        if (!float.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out value))
+        {
+            Debug.LogError($"Parse lỗi {key}: {raw}");
+            return false;
+        }
+
+        return true;
+    }
+
+    bool TryGetInt(GetUserDataResult result, string key, out int value)
+    {
+        value = 0;
+
+        if (result.Data == null || !result.Data.ContainsKey(key))
+        {
+            Debug.LogError($"Thiếu key: {key}");
+            return false;
+        }
+
+        string raw = result.Data[key].Value;
+
+        if (string.IsNullOrEmpty(raw))
+        {
+            Debug.LogError($"Key rỗng: {key}");
+            return false;
+        }
+
+        if (!int.TryParse(raw, out value))
+        {
+            Debug.LogError($"Parse lỗi {key}: {raw}");
+            return false;
+        }
+
+        return true;
+    }
+
+    // ================== UI ==================
     public void OpenSettings()
     {
         settingsMenu.SetActive(true);

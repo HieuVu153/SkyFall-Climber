@@ -52,20 +52,22 @@ public class GameController : MonoBehaviour
 
     IEnumerator SaveAfterDelay()
     {
-        // Đợi 1 giây để chắc chắn người chơi không nhảy tiếp ngay lập tức
-        // hoặc không bị trượt ngã khỏi nền (đúng chất Jump King)
         yield return new WaitForSeconds(1.0f);
+
+        Vector3 pos = player.transform.position;
 
         var request = new UpdateUserDataRequest
         {
             Data = new Dictionary<string, string>
         {
             { "Coin", coinManager.coin.ToString() },
-            { "PosX", player.transform.position.x.ToString() },
-            { "PosY", player.transform.position.y.ToString() },
-            { "PosZ", player.transform.position.z.ToString() }
+            { "PosX", pos.x.ToString(System.Globalization.CultureInfo.InvariantCulture) },
+            { "PosY", pos.y.ToString(System.Globalization.CultureInfo.InvariantCulture) },
+            { "PosZ", pos.z.ToString(System.Globalization.CultureInfo.InvariantCulture) }
         }
         };
+
+        Debug.Log("ĐANG SAVE: " + pos);
 
         PlayFabClientAPI.UpdateUserData(request,
             result => Debug.Log("AutoSave Cloud OK!"),
