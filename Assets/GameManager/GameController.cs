@@ -10,10 +10,9 @@ public class GameController : MonoBehaviour
     public CoinManager coinManager;
     public GameObject player;
 
-    // ================== START ==================
     IEnumerator Start()
     {
-        yield return new WaitForSeconds(0.5f); // đợi PlayFab login
+        yield return new WaitForSeconds(1f);
 
         if (GameData.isContinue)
         {
@@ -24,21 +23,21 @@ public class GameController : MonoBehaviour
             StartNewGame();
         }
 
-        StartCoroutine(AutoSave()); // auto save
+        StartCoroutine(AutoSave());
     }
 
-    // ================== NEW GAME ==================
     void StartNewGame()
     {
         timeManager.ResetTime();
         coinManager.SetCoin(0);
 
-        player.transform.position = Vector3.zero; // hoặc spawn point
+        player.transform.position = Vector3.zero;
+
+        timeManager.StartTimer();
 
         Debug.Log("New Game");
     }
 
-    // ================== LOAD GAME ==================
     void LoadGame()
     {
         PlayFabClientAPI.GetUserData(new GetUserDataRequest(),
@@ -50,8 +49,8 @@ public class GameController : MonoBehaviour
                 float y = float.Parse(result.Data["PosY"].Value);
                 float z = float.Parse(result.Data["PosZ"].Value);
 
-                int coin = int.Parse(result.Data["Coin"].Value);
-                int time = int.Parse(result.Data["Time"].Value);
+                int coin = result.Data.ContainsKey("Coin") ? int.Parse(result.Data["Coin"].Value) : 0;
+                int time = result.Data.ContainsKey("Time") ? int.Parse(result.Data["Time"].Value) : 0;
 
                 player.transform.position = new Vector3(x, y, z);
                 coinManager.SetCoin(coin);
@@ -63,7 +62,6 @@ public class GameController : MonoBehaviour
             }
             else
             {
-                Debug.Log("Không có data → chuyển sang New Game");
                 StartNewGame();
             }
         },
@@ -74,7 +72,6 @@ public class GameController : MonoBehaviour
         });
     }
 
-    // ================== SAVE GAME ==================
     public void SaveGame()
     {
         Vector3 pos = player.transform.position;
@@ -96,7 +93,6 @@ public class GameController : MonoBehaviour
         error => Debug.LogError("Save lỗi: " + error.GenerateErrorReport()));
     }
 
-    // ================== AUTO SAVE ==================
     IEnumerator AutoSave()
     {
         while (true)
@@ -107,21 +103,16 @@ public class GameController : MonoBehaviour
     }
 
     // ================== WIN GAME ==================
-    public void WinGame()
+    public void WinGame(System.Action onDone = null)
     {
         timeManager.StopTimer();
 
         int finalTime = timeManager.GetTime();
 
-        SaveGame();
-        SendTime(finalTime);
-
         Debug.Log("WIN - Time: " + finalTime);
-    }
 
-    // ================== LEADERBOARD ==================
-    void SendTime(int time)
-    {
+        SaveGame();
+
         var request = new UpdatePlayerStatisticsRequest
         {
             Statistics = new List<StatisticUpdate>
@@ -129,13 +120,21 @@ public class GameController : MonoBehaviour
                 new StatisticUpdate
                 {
                     StatisticName = "BestTime",
-                    Value = time
+                    Value = finalTime
                 }
             }
         };
 
         PlayFabClientAPI.UpdatePlayerStatistics(request,
-            result => Debug.Log("Send Time OK"),
-            error => Debug.LogError(error.GenerateErrorReport()));
+            result =>
+            {
+                Debug.Log("Send Time OK");
+                onDone?.Invoke(); // ✅ gửi xong mới chuyển scene
+            },
+            error =>
+            {
+                Debug.LogError(error.GenerateErrorReport());
+                onDone?.Invoke();
+            });
     }
 }

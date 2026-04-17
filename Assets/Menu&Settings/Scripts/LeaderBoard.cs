@@ -1,79 +1,72 @@
 using UnityEngine;
-using System.Collections.Generic;
 using TMPro;
+using PlayFab;
+using PlayFab.ClientModels;
 
 public class LeaderboardManager : MonoBehaviour
 {
     [Header("UI Elements (Kéo đủ 10 ô vào đây)")]
-    public TMP_Text[] nameTexts;   // dùng TMP
-    public TMP_Text[] scoreTexts;  // dùng TMP
+    public TMP_Text[] nameTexts;
+    public TMP_Text[] timeTexts;
 
-    private const string LeaderboardKey = "LeaderboardData";
-
-    void Start()
+    // ================== LOAD LEADERBOARD ==================
+    public void GetLeaderboard()
     {
-        UpdateLeaderboardUI();
+        var request = new GetLeaderboardRequest
+        {
+            StatisticName = "BestTime",
+            StartPosition = 0,
+            MaxResultsCount = 10
+        };
+
+        PlayFabClientAPI.GetLeaderboard(request, OnGetLeaderboard, OnError);
     }
 
-    [System.Serializable]
-    public class ScoreEntry
+    // ================== HIỂN THỊ ==================
+    void OnGetLeaderboard(GetLeaderboardResult result)
     {
-        public string name;
-        public int score;
-    }
-
-    [System.Serializable]
-    public class LeaderboardData
-    {
-        public List<ScoreEntry> list = new List<ScoreEntry>();
-    }
-
-    public void AddNewScore(string playerName, int newScore)
-    {
-        LeaderboardData data = LoadData();
-        data.list.Add(new ScoreEntry { name = playerName, score = newScore });
-
-        // Sắp xếp giảm dần
-        data.list.Sort((x, y) => y.score.CompareTo(x.score));
-
-        // Giữ top 10
-        if (data.list.Count > 10)
-            data.list.RemoveRange(10, data.list.Count - 10);
-
-        SaveData(data);
-        UpdateLeaderboardUI();
-    }
-
-    public void UpdateLeaderboardUI()
-    {
-        LeaderboardData data = LoadData();
-
         for (int i = 0; i < nameTexts.Length; i++)
         {
-            if (i < data.list.Count)
+            if (i < result.Leaderboard.Count)
             {
-                nameTexts[i].text = (i + 1) + ". " + data.list[i].name;
-                scoreTexts[i].text = data.list[i].score.ToString();
+                var item = result.Leaderboard[i];
+
+                int realTime = item.StatValue; // ✅ FIX
+
+                string name = string.IsNullOrEmpty(item.DisplayName)
+                    ? item.PlayFabId
+                    : item.DisplayName;
+
+                nameTexts[i].text = (i + 1) + ". " + name;
+                timeTexts[i].text = FormatTime(realTime);
             }
             else
             {
                 nameTexts[i].text = (i + 1) + ". ---";
-                scoreTexts[i].text = "0";
+                timeTexts[i].text = "--:--:--";
             }
         }
     }
 
-    private void SaveData(LeaderboardData data)
+    // ================== FORMAT TIME ==================
+    string FormatTime(int totalSeconds)
     {
-        string json = JsonUtility.ToJson(data);
-        PlayerPrefs.SetString(LeaderboardKey, json);
-        PlayerPrefs.Save(); // thêm dòng này cho chắc
+        int hours = totalSeconds / 3600;
+        int minutes = (totalSeconds % 3600) / 60;
+        int seconds = totalSeconds % 60;
+
+        return $"{hours:D2}:{minutes:D2}:{seconds:D2}";
     }
 
-    private LeaderboardData LoadData()
+    // ================== ERROR ==================
+    void OnError(PlayFabError error)
     {
-        string json = PlayerPrefs.GetString(LeaderboardKey, "");
-        if (string.IsNullOrEmpty(json)) return new LeaderboardData();
-        return JsonUtility.FromJson<LeaderboardData>(json);
+        Debug.LogError(error.GenerateErrorReport());
+
+        for (int i = 0; i < nameTexts.Length; i++)
+        {
+            nameTexts[i].text = (i + 1) + ". ---";
+            timeTexts[i].text = "--:--:--";
+        }
     }
 }

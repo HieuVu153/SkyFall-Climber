@@ -5,10 +5,7 @@ public class PrincessTrigger : MonoBehaviour
 {
     private bool playerInRange = false;
 
-    [Header("UI")]
     public GameObject pressEUI;
-
-    [Header("Player")]
     public Transform player;
 
     private GameController gameController;
@@ -17,41 +14,48 @@ public class PrincessTrigger : MonoBehaviour
     {
         gameController = FindFirstObjectByType<GameController>();
 
-        // Ẩn text lúc đầu
         if (pressEUI != null)
             pressEUI.SetActive(false);
     }
 
     void Update()
     {
-        // 👉 Công chúa luôn nhìn player
         LookAtPlayer();
 
-        // 👉 Nhấn E để win
         if (playerInRange && Input.GetKeyDown(KeyCode.E))
         {
-            WinGame();
+            WinGame(); // ✅ gọi thẳng luôn
         }
     }
 
-    // ================== LOOK AT PLAYER ==================
     void LookAtPlayer()
     {
         if (player == null) return;
 
-        if (player.position.x > transform.position.x)
-        {
-            // Player bên phải → quay phải
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-        else
-        {
-            // Player bên trái → quay trái
-            transform.localScale = new Vector3(-1, 1, 1);
-        }
+        int dir = (player.position.x > transform.position.x) ? 1 : -1;
+
+        transform.localScale = new Vector3(dir, 1, 1);
+
+        FixUIText(dir);
     }
 
-    // ================== TRIGGER ==================
+    void FixUIText(int dir)
+    {
+        if (pressEUI == null) return;
+
+        Vector3 scale = pressEUI.transform.localScale;
+        scale.x = Mathf.Abs(scale.x) * dir;
+        pressEUI.transform.localScale = scale;
+    }
+
+    void WinGame()
+    {
+        gameController.WinGame(() =>
+        {
+            SceneManager.LoadScene("LeaderBoard");
+        });
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.CompareTag("Player"))
@@ -72,20 +76,5 @@ public class PrincessTrigger : MonoBehaviour
             if (pressEUI != null)
                 pressEUI.SetActive(false);
         }
-    }
-
-    // ================== WIN GAME ==================
-    void WinGame()
-    {
-        Debug.Log("WIN GAME!");
-
-        // 👉 Save + Leaderboard
-        if (gameController != null)
-        {
-            gameController.WinGame();
-        }
-
-        // 👉 Load scene thắng
-        SceneManager.LoadScene("WinGame");
     }
 }

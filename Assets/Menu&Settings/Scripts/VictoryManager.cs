@@ -7,13 +7,15 @@ public class VictoryManager : MonoBehaviour
     public GameObject victoryPanel;
     public GameObject leaderboardPanel;
 
+    [Header("Leaderboard")]
+    public LeaderboardManager leaderboardManager;
+
     [Header("Audio Settings")]
-    public AudioSource musicSource; // Kéo AudioSource (nhạc nền) từ SettingsManager qua đây
-    public AudioClip victoryMusic;  // Kéo file nhạc chiến thắng vào đây
+    public AudioSource musicSource;
+    public AudioClip victoryMusic;
 
     void Start()
     {
-        // Khi Panel Victory hiện lên, ta đổi nhạc
         if (victoryPanel.activeSelf)
         {
             ChangeToVictoryMusic();
@@ -24,31 +26,41 @@ public class VictoryManager : MonoBehaviour
     {
         if (musicSource != null && victoryMusic != null)
         {
-            // Kiểm tra nếu nhạc đang phát không phải là nhạc chiến thắng thì mới đổi
             if (musicSource.clip != victoryMusic)
             {
                 musicSource.Stop();
                 musicSource.clip = victoryMusic;
-                musicSource.loop = true; // Thường nhạc victory sẽ lặp lại trong lúc chờ
+                musicSource.loop = true;
                 musicSource.Play();
             }
         }
     }
 
+    // ================== MỞ / TẮT BXH ==================
     public void ToggleLeaderboard(bool show)
     {
         leaderboardPanel.SetActive(show);
+
+        if (show && leaderboardManager != null)
+        {
+            Invoke(nameof(LoadBoard), 0.5f); // ✅ FIX delay
+        }
+    }
+
+    void LoadBoard()
+    {
+        leaderboardManager.GetLeaderboard();
     }
 
     public void PlayAgain()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("DemoPause");
+        SceneManager.LoadScene("Map");
     }
 
     public void GoToMainMenu()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("DemoUI"); 
+        SceneManager.LoadScene("MainMenu");
     }
 }
