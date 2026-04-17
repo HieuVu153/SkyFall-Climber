@@ -438,7 +438,7 @@ PrefabInstance:
       objectReference: {fileID: 1346434302183582326, guid: 5d22f184549820a479fed5ecb31db837, type: 3}
     - target: {fileID: 6082311816447925023, guid: 3728a60889c5be34cbc3f5faf25e5953, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: NewGame
+      value: PlayGame
       objectReference: {fileID: 0}
     - target: {fileID: 6418344309200068710, guid: 3728a60889c5be34cbc3f5faf25e5953, type: 3}
       propertyPath: m_Type
@@ -691,7 +691,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1640720250}
         m_TargetAssemblyTypeName: MainMenuManager, Assembly-CSharp
-        m_MethodName: PlayGame
+        m_MethodName: ContinueGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

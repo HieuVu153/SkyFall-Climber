@@ -1,7 +1,4 @@
-using PlayFab;
-using PlayFab.ClientModels;
 using System.Collections;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -23,9 +20,8 @@ public class PlayerController : MonoBehaviour
     Vector2 dirForce = Vector2.zero;
     bool addForce;
 
-    public int coin = 0;
-    private GameController gameController;
-    private Coroutine saveCoroutine;
+    public int score = 0;
+
 
     private float moveInput;
     private int facingDirection = 1; // 1 = phải, -1 = trái
@@ -35,19 +31,8 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        gameController = Object.FindFirstObjectByType<GameController>();
-
-        // Load từ DataPersistence (đã lấy từ menu)
-        if (DataPersistence.IsContinuing && DataPersistence.TargetPosition != null)
-        {
-            transform.position = DataPersistence.TargetPosition.Value;
-            Debug.Log("Apply vị trí đã lưu: " + transform.position);
-        }
-        else
-        {
-            Debug.Log("Chơi mới - dùng vị trí mặc định");
-        }
     }
+
     void Update()
     {
         Move();
@@ -135,12 +120,6 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
             anim.SetBool("isJumping", false);
-
-            // Mỗi khi chạm đất an toàn, gọi AutoSave
-            if (gameController != null)
-            {
-                gameController.AutoSavePosition();
-            }
         }
     }
     public void Knockback(Vector2 direction)
@@ -156,4 +135,13 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(.4f);
         addForce = false;
     }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Coin"))
+        {
+            GameManager.instance.AddScore(1);
+            Destroy(collision.gameObject);
+        }
+    }
+
 }
