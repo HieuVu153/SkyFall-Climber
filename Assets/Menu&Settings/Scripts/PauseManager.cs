@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Bắt buộc có dòng này để load lại cảnh
+using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
 {
@@ -7,7 +7,14 @@ public class PauseManager : MonoBehaviour
     public GameObject pauseButton;
     public GameObject settingsMenu;
 
-    // 1. Hàm Resume (Tiếp tục)
+    private GameController gameController;
+
+    void Start()
+    {
+        gameController = FindFirstObjectByType<GameController>();
+    }
+
+    // 1. Resume
     public void Resume()
     {
         pauseMenu.SetActive(false);
@@ -15,7 +22,7 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = 1f;
     }
 
-    // 2. Hàm Pause (Tạm dừng)
+    // 2. Pause
     public void Pause()
     {
         pauseMenu.SetActive(true);
@@ -23,30 +30,43 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = 0f;
     }
 
-    // 3.  Play Again (Chơi lại)
+    // 3. Play Again
     public void PlayAgain()
     {
-        Time.timeScale = 1f; // QUAN TRỌNG: Phải cho thời gian chạy lại trước khi load
-        // Load lại chính Scene hiện tại
+        Time.timeScale = 1f;
+
+        // 👉 reset game
+        GameData.isContinue = false;
+
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
+
     public void OpenSettingsInPause()
     {
-        pauseMenu.SetActive(false);    // Ẩn bảng Pause
-        settingsMenu.SetActive(true); // Hiện bảng Settings (cái bảng mà bạn đã làm ở Main Menu)
+        pauseMenu.SetActive(false);
+        settingsMenu.SetActive(true);
     }
 
     public void CloseSettingsInPause()
     {
-        settingsMenu.SetActive(false); // Ẩn bảng Settings
-        pauseMenu.SetActive(true);    // Hiện lại bảng Pause để người chơi chọn tiếp
+        settingsMenu.SetActive(false);
+        pauseMenu.SetActive(true);
     }
 
-    // 4. Thoát về Menu chính
+    // 4. Exit (THÊM SAVE)
     public void ExitToMenu()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene("MainMenu"); // Thay bằng tên Scene Menu của bạn
-    }
 
+        // 👉 CHỈ THÊM ĐOẠN NÀY
+        if (gameController != null)
+        {
+            gameController.SaveGame();
+        }
+
+        // 👉 để Continue hoạt động
+        GameData.isContinue = true;
+
+        SceneManager.LoadScene("MainMenu");
+    }
 }

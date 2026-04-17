@@ -3,29 +3,36 @@ using UnityEngine.SceneManagement;
 
 public class MainMenuManager : MonoBehaviour
 {
-    public GameObject settingsMenu; // Kéo Panel Settings vào đây
+    public GameObject settingsMenu; // Panel Settings
 
-    // Hàm cho nút "Chơi Tiếp"
+    // ================== CONTINUE ==================
     public void ContinueGame()
     {
-        // Lấy level đã lưu, nếu chưa có thì mặc định là level 1
-        int savedLevel = PlayerPrefs.GetInt("SavedLevel", 1);
-        SceneManager.LoadScene(savedLevel);
+        GameData.isContinue = true;
+        SceneManager.LoadScene("Map"); // scene game của bạn
     }
 
-    // Hàm cho nút "Chơi Mới"
-    public void PlayGame()
+    // ================== NEW GAME ==================
+    public void NewGame()
     {
-        // Chơi mới thường là load Scene đầu tiên sau MainMenu (Index 1)
+        GameData.isContinue = false;
         SceneManager.LoadScene("Map");
     }
 
+    // ================== SETTINGS ==================
     public void OpenSettings()
     {
         settingsMenu.SetActive(true);
-        gameObject.SetActive(false); // Ẩn Menu chính
+        gameObject.SetActive(false);
     }
 
+    public void CloseSettings()
+    {
+        settingsMenu.SetActive(false);
+        gameObject.SetActive(true);
+    }
+
+    // ================== EXIT ==================
     public void ExitGame()
     {
         Debug.Log("Quit Game!");
