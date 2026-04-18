@@ -9,14 +9,16 @@ public class MainMenuManager : MonoBehaviour
     public void ContinueGame()
     {
         GameData.isContinue = true;
-        SceneManager.LoadScene("Map"); // scene game của bạn
+        Loading.nextScene = "Map";
+        SceneManager.LoadScene("Loading"); // scene game của bạn
     }
 
     // ================== NEW GAME ==================
     public void NewGame()
     {
         GameData.isContinue = false;
-        SceneManager.LoadScene("Map");
+        Loading.nextScene = "Map";
+        SceneManager.LoadScene("Loading");
     }
 
     // ================== SETTINGS ==================

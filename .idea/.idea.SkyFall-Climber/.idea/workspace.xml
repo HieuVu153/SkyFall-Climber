@@ -12,6 +12,11 @@
   <component name="ChangeListManager">
     <list default="true" id="be3e67c7-fad0-4a48-8db1-296fc9931d9d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.SkyFall-Climber/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SkyFall-Climber/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Loading/Loading.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Loading/Loading.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Menu&amp;Settings/Scripts/MainMenuManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Menu&amp;Settings/Scripts/MainMenuManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Loading.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Loading.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/TextMesh Pro/Resources/Fonts &amp; Materials/LiberationSans SDF - Fallback.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/EditorBuildSettings.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,7 +106,7 @@
       <workItem from="1776081959015" duration="7292000" />
       <workItem from="1776250373060" duration="1870000" />
       <workItem from="1776323582362" duration="3820000" />
-      <workItem from="1776550510614" duration="345000" />
+      <workItem from="1776550510614" duration="2416000" />
     </task>
     <servers />
   </component>
