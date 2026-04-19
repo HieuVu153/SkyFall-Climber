@@ -4,20 +4,32 @@ using TMPro;
 
 public class ShopManager : MonoBehaviour
 {
-    [Header("Giao diện")]
-    public GameObject shopPanel;      // Kéo cái Panel Shop vào
-    public KeyCode openKey = KeyCode.B; // Phím mở shop
+    [Header("UI Shop")]
+    public GameObject shopPanel;
+    public KeyCode openKey = KeyCode.B;
 
-    [Header("Bảng chi tiết bên phải")]
+    [Header("Preview Panel")]
     public Image previewIcon;
-    public TextMeshProUGUI previewName, previewDesc, previewPrice;
+    public TextMeshProUGUI previewName;
+    public TextMeshProUGUI previewDesc;
+    public TextMeshProUGUI previewPrice;
     public Button buyButton;
 
-    private ItemData selectedItem; // Món đồ đang chọn
+    public CoinManager coinManager;
+
+    private ItemData selectedItem;
+
+    private bool isBuying = false; // ✅ chống spam / gọi 2 lần
 
     void Start()
     {
-        shopPanel.SetActive(false); // Lúc đầu ẩn shop đi
+        shopPanel.SetActive(false);
+
+        if (buyButton != null)
+        {
+            buyButton.onClick.RemoveAllListeners(); // ✅ tránh bị add 2 lần
+            buyButton.onClick.AddListener(BuyItem);
+        }
     }
 
     void Update()
@@ -26,38 +38,58 @@ public class ShopManager : MonoBehaviour
         {
             bool isActive = !shopPanel.activeSelf;
             shopPanel.SetActive(isActive);
-            
-            // Hiện chuột để bấm Shop
+
             Cursor.visible = isActive;
             Cursor.lockState = isActive ? CursorLockMode.None : CursorLockMode.Locked;
         }
     }
 
-    // Hàm hiển thị thông tin khi click vào 1 ô vật phẩm
     public void ShowPreview(ItemData data)
     {
+        if (data == null) return;
+
         selectedItem = data;
+
         previewIcon.sprite = data.itemIcon;
         previewName.text = data.itemName;
         previewDesc.text = data.description;
         previewPrice.text = "Giá: " + data.price;
     }
 
-    // Hàm bấm nút Mua
     public void BuyItem()
     {
-        if (selectedItem != null)
+        // ✅ chống gọi 2 lần
+        if (isBuying) return;
+        isBuying = true;
+
+        if (selectedItem == null)
         {
-            // GỌI ĐẾN GAMEMANAGER ĐỂ TRỪ TIỀN
-            if (GameManager.instance.SpendScore(selectedItem.price))
-            {
-                Debug.Log("Mua thành công món: " + selectedItem.itemName);
-                // Bạn có thể thêm code cộng chỉ số nhân vật ở đây
-            }
-            else
-            {
-                Debug.Log("Bạn không đủ tiền!");
-            }
+            isBuying = false;
+            return;
         }
+
+        if (coinManager == null)
+        {
+            Debug.LogError("Chưa gắn CoinManager!");
+            isBuying = false;
+            return;
+        }
+
+        int currentCoin = coinManager.GetCoin();
+
+        if (currentCoin >= selectedItem.price)
+        {
+            coinManager.SetCoin(currentCoin - selectedItem.price);
+
+            Debug.Log("Mua thành công: " + selectedItem.itemName);
+
+            // TODO: buff tại đây
+        }
+        else
+        {
+            Debug.Log("Không đủ tiền!");
+        }
+
+        isBuying = false;
     }
 }

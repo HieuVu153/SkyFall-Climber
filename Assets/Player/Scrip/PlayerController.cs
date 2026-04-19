@@ -14,6 +14,8 @@ public class PlayerController : MonoBehaviour
     private bool isCharging = false;
     private bool isGrounded;
 
+    public CoinManager coinManager;
+
     private Rigidbody2D rb;
     private Animator anim;
     public float knockbackForce = 10f;
@@ -139,7 +141,15 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.CompareTag("Coin"))
         {
-            GameManager.instance.AddScore(1);
+            if (coinManager != null)
+            {
+                coinManager.AddCoin(1);
+            }
+            else
+            {
+                Debug.LogError("Chưa gắn CoinManager!");
+            }
+
             Destroy(collision.gameObject);
         }
     }
