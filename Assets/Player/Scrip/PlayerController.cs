@@ -10,6 +10,12 @@ public class PlayerController : MonoBehaviour
     public float jumpForce = 7f;
     public float maxChargeTime = 1.5f;
 
+    [Header("Fly Mode")]
+    public float flySpeed = 8f;
+    private bool isFlyMode = false;
+    private Collider2D col;
+    private float originalGravity; // lưu gravity gốc
+
     private float chargeTime;
     private bool isCharging = false;
     private bool isGrounded;
@@ -24,23 +30,52 @@ public class PlayerController : MonoBehaviour
 
     public int score = 0;
 
-
     private float moveInput;
     private int facingDirection = 1; // 1 = phải, -1 = trái
-
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        col = GetComponent<Collider2D>();
+
+        originalGravity = rb.gravityScale; // lưu gravity ban đầu
     }
 
     void Update()
     {
+        // ===== Toggle Fly Mode =====
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            isFlyMode = !isFlyMode;
+
+            if (isFlyMode)
+            {
+                rb.gravityScale = 0;
+                col.isTrigger = true;
+            }
+            else
+            {
+                rb.gravityScale = originalGravity; // trả lại gravity gốc
+                col.isTrigger = false;
+                rb.linearVelocity = Vector2.zero; // reset lực bay còn sót
+            }
+        }
+
+        // ===== Điều khiển bay =====
+        if (isFlyMode)
+        {
+            float x = Input.GetAxis("Horizontal");
+            float y = Input.GetAxis("Vertical");
+
+            rb.linearVelocity = new Vector2(x * flySpeed, y * flySpeed);
+            return;
+        }
+
+        // ===== CODE GỐC =====
         Move();
         Jump();
 
-        // cập nhật animation speed (Idle/Run)
         anim.SetFloat("speed", Mathf.Abs(rb.linearVelocity.x));
 
         if (addForce) transform.Translate(dirForce * 20f * Time.deltaTime);
@@ -48,7 +83,6 @@ public class PlayerController : MonoBehaviour
 
     void Move()
     {
-        // Chỉ khóa khi đang bay, không khóa khi đang charge
         if (!isGrounded && !isCharging) return;
 
         moveInput = 0;
@@ -65,7 +99,6 @@ public class PlayerController : MonoBehaviour
             Flip(1);
         }
 
-        //  Nếu đang charge thì KHÔNG cho trượt (đứng yên nhưng vẫn xoay)
         if (isCharging)
         {
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
@@ -82,7 +115,6 @@ public class PlayerController : MonoBehaviour
         {
             isCharging = true;
             chargeTime = 0;
-
             anim.SetBool("isJumping", true);
         }
 
@@ -124,10 +156,11 @@ public class PlayerController : MonoBehaviour
             anim.SetBool("isJumping", false);
         }
     }
+
     public void Knockback(Vector2 direction)
     {
-        //rb.linearVelocity = Vector2.zero; // reset lực cũ
-        //rb.AddForce(direction * knockbackForce, ForceMode2D.Impulse);
+        // rb.linearVelocity = Vector2.zero;
+        // rb.AddForce(direction * knockbackForce, ForceMode2D.Impulse);
     }
 
     public IEnumerator DelayKnock(Vector2 direction)
@@ -137,6 +170,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(.4f);
         addForce = false;
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Coin"))
@@ -153,5 +187,4 @@ public class PlayerController : MonoBehaviour
             Destroy(collision.gameObject);
         }
     }
-
 }
