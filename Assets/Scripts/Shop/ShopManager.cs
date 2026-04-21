@@ -4,22 +4,20 @@ using TMPro;
 
 public class ShopManager : MonoBehaviour
 {
-    [Header("UI Shop")]
     public GameObject shopPanel;
     public KeyCode openKey = KeyCode.B;
 
-    [Header("Preview Panel")]
+    public HotbarManager hotbarManager;
+    public CoinManager coinManager;
+
     public Image previewIcon;
     public TextMeshProUGUI previewName;
     public TextMeshProUGUI previewDesc;
     public TextMeshProUGUI previewPrice;
     public Button buyButton;
 
-    public CoinManager coinManager;
-
     private ItemData selectedItem;
-
-    private bool isBuying = false; // ✅ chống spam / gọi 2 lần
+    private bool isBuying = false;
 
     void Start()
     {
@@ -27,9 +25,12 @@ public class ShopManager : MonoBehaviour
 
         if (buyButton != null)
         {
-            buyButton.onClick.RemoveAllListeners(); // ✅ tránh bị add 2 lần
+            buyButton.onClick.RemoveAllListeners();
             buyButton.onClick.AddListener(BuyItem);
         }
+
+        if (hotbarManager == null)
+            hotbarManager = FindFirstObjectByType<HotbarManager>();
     }
 
     void Update()
@@ -58,19 +59,11 @@ public class ShopManager : MonoBehaviour
 
     public void BuyItem()
     {
-        // ✅ chống gọi 2 lần
         if (isBuying) return;
         isBuying = true;
 
-        if (selectedItem == null)
+        if (selectedItem == null || coinManager == null || hotbarManager == null)
         {
-            isBuying = false;
-            return;
-        }
-
-        if (coinManager == null)
-        {
-            Debug.LogError("Chưa gắn CoinManager!");
             isBuying = false;
             return;
         }
@@ -80,10 +73,9 @@ public class ShopManager : MonoBehaviour
         if (currentCoin >= selectedItem.price)
         {
             coinManager.SetCoin(currentCoin - selectedItem.price);
+            hotbarManager.AddItem(selectedItem);
 
             Debug.Log("Mua thành công: " + selectedItem.itemName);
-
-            // TODO: buff tại đây
         }
         else
         {

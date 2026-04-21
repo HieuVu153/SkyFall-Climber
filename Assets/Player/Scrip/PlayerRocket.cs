@@ -6,51 +6,71 @@ public class PlayerRocket : MonoBehaviour
     private Rigidbody2D rb;
     private Collider2D col;
 
-    public GameObject rocketVisual; // kéo Rocket vào đây
+    public GameObject rocketVisual;
 
     private bool isRocketActive = false;
+
+    private float defaultGravity;
+    private Coroutine rocketCoroutine;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
 
-        rocketVisual.SetActive(false); // ẩn lúc đầu
+        defaultGravity = rb.gravityScale;
+
+        if (rocketVisual != null)
+            rocketVisual.SetActive(false);
     }
 
     public void ActivateRocket(float force, float duration)
     {
-        if (!isRocketActive)
-        {
-            StartCoroutine(RocketCoroutine(force, duration));
-        }
+        if (isRocketActive) return;
+
+        if (rocketCoroutine != null)
+            StopCoroutine(rocketCoroutine);
+
+        rocketCoroutine = StartCoroutine(RocketCoroutine(force, duration));
     }
 
     IEnumerator RocketCoroutine(float force, float duration)
     {
         isRocketActive = true;
 
-        // Hiện rocket
-        rocketVisual.SetActive(true);
+        // bật visual
+        if (rocketVisual != null)
+            rocketVisual.SetActive(true);
 
-        // Tắt va chạm
-        col.enabled = false;
+        // tắt va chạm
+        if (col != null)
+            col.enabled = false;
 
-        // Reset vận tốc
+        // reset lực
         rb.linearVelocity = Vector2.zero;
 
-        // Bay lên
+        // tắt trọng lực
         rb.gravityScale = 0;
-        rb.AddForce(Vector2.up * force, ForceMode2D.Impulse);
 
-        yield return new WaitForSeconds(duration);
+        float timer = 0;
 
-        // Ẩn lại
-        rocketVisual.SetActive(false);
+        // 🚀 bay liên tục mượt hơn
+        while (timer < duration)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, force);
+            timer += Time.deltaTime;
+            yield return null;
+        }
 
-        // Trả lại bình thường
-        rb.gravityScale = 8;
-        col.enabled = true;
+        // tắt visual
+        if (rocketVisual != null)
+            rocketVisual.SetActive(false);
+
+        // trả lại trạng thái ban đầu
+        rb.gravityScale = defaultGravity;
+
+        if (col != null)
+            col.enabled = true;
 
         isRocketActive = false;
     }

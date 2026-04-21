@@ -17,3 +17,4 @@ MonoBehaviour:
   price: 25
   description: "S\u1EED d\u1EE5ng cho nh\xE2n v\u1EADt c\u1EE7a b\u1EA1n bay 1 kho\u1EA3ng
     c\xE1ch xuy\xEAn qua m\u1ECDi ch\u01B0\u1EDBng ng\u1EA1i v\u1EADt"
+  itemType: 1
