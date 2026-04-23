@@ -14,6 +14,7 @@ public class ItemSlot : MonoBehaviour
     void Start()
     {
         shopManager = FindFirstObjectByType<ShopManager>();
+
         if (data != null && iconImage != null)
         {
             iconImage.sprite = data.itemIcon;

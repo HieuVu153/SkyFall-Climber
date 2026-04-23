@@ -10,13 +10,17 @@ public class HotbarManager : MonoBehaviour
 
     void Awake()
     {
-        // ✅ luôn đồng bộ size → tránh crash
         items = new ItemData[slots.Length];
+
+        for (int i = 0; i < slots.Length; i++)
+        {
+            slots[i].sprite = null;
+            slots[i].color = new Color(1, 1, 1, 0);
+        }
     }
 
     void Update()
     {
-        // chọn slot
         if (Input.GetKeyDown(KeyCode.Alpha1)) SelectSlot(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) SelectSlot(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) SelectSlot(2);
@@ -25,27 +29,10 @@ public class HotbarManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha6)) SelectSlot(5);
         if (Input.GetKeyDown(KeyCode.Alpha7)) SelectSlot(6);
 
-        // dùng item
         if (Input.GetMouseButtonDown(0))
         {
             UseItem();
         }
-    }
-
-    public void AddItem(ItemData item)
-    {
-        for (int i = 0; i < items.Length; i++)
-        {
-            if (items[i] == null)
-            {
-                items[i] = item;
-                slots[i].sprite = item.itemIcon;
-                slots[i].color = Color.white;
-                return;
-            }
-        }
-
-        Debug.Log("Hotbar đầy!");
     }
 
     void SelectSlot(int index)
@@ -58,6 +45,28 @@ public class HotbarManager : MonoBehaviour
         {
             slots[i].color = (i == index) ? Color.yellow : Color.white;
         }
+    }
+
+    public int GetCurrentIndex()
+    {
+        return currentIndex;
+    }
+
+    public bool AddItemToCurrentSlot(ItemData item)
+    {
+        if (currentIndex < 0 || currentIndex >= items.Length) return false;
+
+        if (items[currentIndex] != null)
+        {
+            Debug.Log("Slot đang chọn đã có item!");
+            return false;
+        }
+
+        items[currentIndex] = item;
+        slots[currentIndex].sprite = item.itemIcon;
+        slots[currentIndex].color = Color.white;
+
+        return true;
     }
 
     void UseItem()
@@ -77,12 +86,16 @@ public class HotbarManager : MonoBehaviour
             case ItemType.Rocket:
                 UseRocket();
                 break;
+
+            case ItemType.Hook:
+                UseHook();
+                break;
         }
 
-        // ✅ DÙNG XONG → XÓA KHỎI HOTBAR
+        // xóa sau khi dùng
         items[currentIndex] = null;
         slots[currentIndex].sprite = null;
-        slots[currentIndex].color = new Color(1, 1, 1, 0); // ẩn
+        slots[currentIndex].color = new Color(1, 1, 1, 0);
     }
 
     void UseRocket()
@@ -91,12 +104,27 @@ public class HotbarManager : MonoBehaviour
 
         if (rocket != null)
         {
-            rocket.ActivateRocket(30f, 2f);
-            Debug.Log("🚀 Rocket activated");
+            rocket.ActivateRocket(20f, 0.5f);
+            Debug.Log("🚀 Rocket dùng");
         }
         else
         {
             Debug.LogError("Không tìm thấy PlayerRocket!");
+        }
+    }
+
+    void UseHook()
+    {
+        PlayerHook hook = FindFirstObjectByType<PlayerHook>();
+
+        if (hook != null)
+        {
+            hook.FireHook();
+            Debug.Log("🪝 Hook dùng");
+        }
+        else
+        {
+            Debug.LogError("Không tìm thấy PlayerHook!");
         }
     }
 }

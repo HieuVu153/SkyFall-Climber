@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 429c59b0d1cb62e47832eec006f3351f, type: 3}
+  m_Name: HookItem
+  m_EditorClassIdentifier: 
+  itemName: Hook
+  itemIcon: {fileID: -1426486914805705407, guid: ac5d8d4d71182b74a8ab0da588f4c4eb, type: 3}
+  price: 20
+  description: "S\u1EED d\u1EE5ng \u0111\u1EC3 b\xE1m l\xEAn v\u1ECB tr\xED b\u1EA1n
+    mu\u1ED1n k\xE9o b\u1EA1n l\xEAn v\u1ECB tr\xED khi b\u1EA1n s\u1EED d\u1EE5ng"
+  itemType: 2

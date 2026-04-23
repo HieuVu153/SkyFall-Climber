@@ -15,5 +15,6 @@ public class ItemData : ScriptableObject
 public enum ItemType
 {
     None,
-    Rocket
+    Rocket,
+    Hook
 }

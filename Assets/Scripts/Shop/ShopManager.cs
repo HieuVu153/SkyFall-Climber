@@ -4,13 +4,16 @@ using TMPro;
 
 public class ShopManager : MonoBehaviour
 {
+    [Header("UI")]
     public GameObject shopPanel;
     public KeyCode openKey = KeyCode.B;
 
+    [Header("Manager")]
     public HotbarManager hotbarManager;
     public CoinManager coinManager;
 
-    public Image previewIcon;
+    [Header("Preview")]
+    public Image previewIcon; // ✅ FIX: chỉ cần 1 ảnh
     public TextMeshProUGUI previewName;
     public TextMeshProUGUI previewDesc;
     public TextMeshProUGUI previewPrice;
@@ -31,18 +34,26 @@ public class ShopManager : MonoBehaviour
 
         if (hotbarManager == null)
             hotbarManager = FindFirstObjectByType<HotbarManager>();
+
+        if (coinManager == null)
+            coinManager = FindFirstObjectByType<CoinManager>();
     }
 
     void Update()
     {
         if (Input.GetKeyDown(openKey))
         {
-            bool isActive = !shopPanel.activeSelf;
-            shopPanel.SetActive(isActive);
-
-            Cursor.visible = isActive;
-            Cursor.lockState = isActive ? CursorLockMode.None : CursorLockMode.Locked;
+            ToggleShop();
         }
+    }
+
+    void ToggleShop()
+    {
+        bool isActive = !shopPanel.activeSelf;
+        shopPanel.SetActive(isActive);
+
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 
     public void ShowPreview(ItemData data)
@@ -51,10 +62,18 @@ public class ShopManager : MonoBehaviour
 
         selectedItem = data;
 
-        previewIcon.sprite = data.itemIcon;
-        previewName.text = data.itemName;
-        previewDesc.text = data.description;
-        previewPrice.text = "Giá: " + data.price;
+        // ✅ FIX: không còn array
+        if (previewIcon != null)
+            previewIcon.sprite = data.itemIcon;
+
+        if (previewName != null)
+            previewName.text = data.itemName;
+
+        if (previewDesc != null)
+            previewDesc.text = data.description;
+
+        if (previewPrice != null)
+            previewPrice.text = "Giá: " + data.price;
     }
 
     public void BuyItem()
@@ -62,26 +81,63 @@ public class ShopManager : MonoBehaviour
         if (isBuying) return;
         isBuying = true;
 
-        if (selectedItem == null || coinManager == null || hotbarManager == null)
+        if (selectedItem == null)
         {
+            Debug.LogWarning("Chưa chọn item!");
+            isBuying = false;
+            return;
+        }
+
+        if (coinManager == null || hotbarManager == null)
+        {
+            Debug.LogError("Thiếu Manager!");
             isBuying = false;
             return;
         }
 
         int currentCoin = coinManager.GetCoin();
 
-        if (currentCoin >= selectedItem.price)
-        {
-            coinManager.SetCoin(currentCoin - selectedItem.price);
-            hotbarManager.AddItem(selectedItem);
-
-            Debug.Log("Mua thành công: " + selectedItem.itemName);
-        }
-        else
+        // ❌ KHÔNG ĐỦ TIỀN
+        if (currentCoin < selectedItem.price)
         {
             Debug.Log("Không đủ tiền!");
+            isBuying = false;
+            return;
         }
 
+        // ❌ SLOT ĐANG CHỌN ĐÃ CÓ ITEM
+        if (!IsCurrentSlotEmpty())
+        {
+            Debug.Log("Slot đang chọn đã có item!");
+            isBuying = false;
+            return;
+        }
+
+        // ✅ MUA
+        coinManager.SetCoin(currentCoin - selectedItem.price);
+
+        bool added = hotbarManager.AddItemToCurrentSlot(selectedItem);
+
+        if (!added)
+        {
+            isBuying = false;
+            return;
+        }
+
+        // 🔥 HOOK +1 LẦN DÙNG
+        PlayerHook hook = FindFirstObjectByType<PlayerHook>();
+        if (hook != null && selectedItem.itemName == "Hook")
+        {
+            hook.hookCount += 1;
+        }
+
+        Debug.Log("Mua thành công: " + selectedItem.itemName);
+
         isBuying = false;
+    }
+
+    bool IsCurrentSlotEmpty()
+    {
+        return hotbarManager.items[hotbarManager.GetCurrentIndex()] == null;
     }
 }
